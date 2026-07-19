@@ -15,7 +15,39 @@ como separador decimal e formato de data que muda entre anos.
 
 ## Resultados
 
-*(seção preenchida ao final da execução do benchmark — veja `results/`)*
+Dataset CNPJ: **15,7 milhões de estabelecimentos** e **6,5 milhões de empresas**
+(recorte SP/RJ/MG/BA da parte 0); PRF: **205 mil acidentes** (2022–2024).
+
+![Tempo mediano por query](results/charts/tempo_queries.png)
+
+![Tempo de carga](results/charts/tempo_carga.png)
+
+![Pico de memória](results/charts/memoria_pico.png)
+
+### Destaques
+
+| Métrica | Resultado |
+|---------|-----------|
+| Carga (Parquet → pronta p/ consulta) | Polars 0,4 s · DuckDB 0,9 s · Pandas 3,9 s · **SQLite 146 s** |
+| Query mais pesada (join 15,7M × 6,5M, q4) | DuckDB 388 ms · Polars 799 ms · Pandas 7,6 s · SQLite 19,9 s |
+| Agregação com data (q1) | DuckDB 77 ms · Polars 425 ms · Pandas 2,2 s · SQLite 10,4 s |
+| Pico de memória (carga + queries) | DuckDB ~1,8 GB · Polars ~2,2 GB · Pandas ~2,8 GB · SQLite ~3,7 GB |
+
+O que os números contam:
+
+- **DuckDB venceu todas as queries analíticas** — execução vetorizada e colunar
+  fazem 20–135× a diferença sobre SQLite no mesmo hardware, com a mesma semântica SQL.
+- **Polars carregou mais rápido** que todas (Parquet nativo + lazy) e ficou
+  consistentemente em segundo nas queries.
+- **SQLite pagou caro duas vezes**: na carga (146 s inserindo linha a linha) e nas
+  queries analíticas (armazenamento orientado a linha). Não é o trabalho para o
+  qual ele foi desenhado — e o benchmark mostra exatamente o quanto isso custa.
+- **Pandas segurou o meio de campo**, mas a q6 expõe uma dor real: sem tipo nativo
+  para hora-do-dia, a extração da hora cai em `.map()` objeto a objeto — Polars fez
+  a mesma query 20× mais rápido.
+
+Máquina dos testes: AMD Ryzen 5 5600G, 16 GB RAM, SSD, Windows 10 Pro ·
+Python 3.12 · pandas 3.0.3 · polars 1.42.1 · duckdb 1.5.4 · SQLite 3.49.
 
 ## Por que essas engines
 
