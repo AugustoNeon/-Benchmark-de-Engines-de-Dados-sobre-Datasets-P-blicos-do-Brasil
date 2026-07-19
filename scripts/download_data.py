@@ -11,8 +11,9 @@ Fontes (ambas dados abertos do governo federal):
      parte 0 de cada uma + tabelas de referencia, e o recorte por UF e feito
      depois, em prepare_data.py.
   2. Acidentes PRF: CSVs anuais (datatran) linkados na pagina de dados
-     abertos da PRF. Os links sao shares do ownCloud e mudam de token, entao
-     o script raspa a pagina oficial para descobri-los.
+     abertos da PRF. Os arquivos hoje ficam no Google Drive e os IDs mudam,
+     entao o script raspa a tabela da pagina oficial para descobrir o link
+     "Agrupados por ocorrencia" de cada ano.
 
 Uso:
     python scripts/download_data.py
@@ -117,20 +118,25 @@ def download_rfb(session: requests.Session) -> None:
 
 
 def discover_prf_links(session: requests.Session) -> dict[str, str]:
-    """Raspa a pagina de dados abertos da PRF atras dos links de datatran por ano."""
+    """Raspa a tabela da pagina da PRF: ano -> link de download no Google Drive.
+
+    Cada linha da tabela tem um texto tipo "Acidentes 2023 (Agrupados por
+    ocorrencia)" e um link drive.google.com/file/d/<id>/view; convertemos
+    para a URL de download direto (uc?export=download).
+    """
     resp = session.get(PRF_PAGE, headers=HEADERS, timeout=60)
     resp.raise_for_status()
-    html = resp.text
     links: dict[str, str] = {}
-    # Os links de download aparecem como shares do ownCloud proximos ao texto do ano.
-    for match in re.finditer(
-        r'href="(https://arquivos\.prf\.gov\.br/arquivos/index\.php/s/[^"]+)"[^>]*>([^<]*)',
-        html,
-    ):
-        url, text = match.group(1), match.group(2)
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", resp.text, re.S):
+        text = " ".join(re.sub(r"<[^>]+>", " ", row).split())
+        match = re.search(r"https://drive\.google\.com/file/d/([\w-]+)/", row)
+        if not match or "por ocorr" not in text.lower():
+            continue
         for year in PRF_YEARS:
-            if year in text and year not in links:
-                links[year] = url.rstrip("/") + ("" if url.endswith("/download") else "/download")
+            if f"Acidentes {year}" in text and year not in links:
+                links[year] = (
+                    f"https://drive.google.com/uc?export=download&id={match.group(1)}"
+                )
     return links
 
 
