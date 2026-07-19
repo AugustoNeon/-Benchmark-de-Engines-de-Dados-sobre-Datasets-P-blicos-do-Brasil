@@ -111,8 +111,10 @@ def detect_encoding(zip_path: Path) -> str:
 
 def csv_opts(cols: dict[str, str]) -> str:
     cols_sql = ", ".join(f"'{name}': '{typ}'" for name, typ in cols.items())
+    # escape='"' explicito: os CSVs da RFB tem aspas duplicadas dentro de
+    # campo (ex.: ESQ COM RUA ""C"") e o sniffer nao detecta sozinho.
     return (
-        f"delim=';', quote='\"', header=false, columns={{{cols_sql}}}, "
+        f"delim=';', quote='\"', escape='\"', header=false, columns={{{cols_sql}}}, "
         "decimal_separator=',', encoding='utf-8'"
     )
 
@@ -189,8 +191,8 @@ def prepare_prf(con: duckdb.DuckDBPyConnection) -> None:
             try_cast(mortos AS INTEGER) AS mortos,
             try_cast(feridos AS INTEGER) AS feridos,
             try_cast(veiculos AS INTEGER) AS veiculos
-        FROM read_csv('{glob}', delim=';', header=true, all_varchar=true,
-                      encoding='utf-8', union_by_name=true)
+        FROM read_csv('{glob}', delim=';', quote='"', escape='"', header=true,
+                      all_varchar=true, encoding='utf-8', union_by_name=true)
         """
     )
 
