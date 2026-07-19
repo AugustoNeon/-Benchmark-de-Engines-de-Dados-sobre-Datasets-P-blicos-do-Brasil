@@ -44,6 +44,19 @@ ENGINES = ["pandas", "sqlite", "duckdb", "polars"]
 N_RUNS = 5
 
 
+def read_parquet_pandas(path: Path) -> pd.DataFrame:
+    """pd.read_parquet devolve colunas DATE como objetos datetime.date, que
+    nao vetorizam; converte p/ datetime64 (colunas TIME ficam como estao,
+    pandas nao tem tipo p/ hora-do-dia)."""
+    df = pd.read_parquet(path)
+    for col in df.columns:
+        if df[col].dtype == object:
+            first = df[col].dropna().head(1)
+            if not first.empty and type(first.iloc[0]) is date:
+                df[col] = pd.to_datetime(df[col])
+    return df
+
+
 # ------------------------------------------------------------------ engines
 class DuckDBAdapter:
     name = "duckdb"
@@ -65,7 +78,7 @@ class SQLiteAdapter:
     def load(self, pq: Path) -> None:
         self.con = sqlite3.connect(":memory:")
         for t in TABLES:
-            df = pd.read_parquet(pq / f"{t}.parquet")
+            df = read_parquet_pandas(pq / f"{t}.parquet")
             # SQLite nao tem DATE/TIME: converte p/ texto ISO na carga.
             for col in df.columns:
                 if pd.api.types.is_datetime64_any_dtype(df[col]):
@@ -93,7 +106,7 @@ class PandasAdapter:
     name = "pandas"
 
     def load(self, pq: Path) -> None:
-        self.tables = {t: pd.read_parquet(pq / f"{t}.parquet") for t in TABLES}
+        self.tables = {t: read_parquet_pandas(pq / f"{t}.parquet") for t in TABLES}
 
     def run(self, q: Query) -> list[tuple]:
         df = q.fn_pandas(self.tables)

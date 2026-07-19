@@ -53,6 +53,8 @@ plt.rcParams.update(
 
 def fmt_ms(seconds: float) -> str:
     ms = seconds * 1000
+    if ms < 10:
+        return f"{ms:.1f} ms"
     return f"{ms:,.0f} ms" if ms < 10_000 else f"{seconds:.1f} s"
 
 
