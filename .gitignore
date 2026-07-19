@@ -1,0 +1,15 @@
+# Dados brutos e processados — grandes demais para o git.
+# Reproduza com: python scripts/download_data.py && python scripts/prepare_data.py
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Ambiente/IDE
+.env
+.vscode/
+.idea/
+.claude/
