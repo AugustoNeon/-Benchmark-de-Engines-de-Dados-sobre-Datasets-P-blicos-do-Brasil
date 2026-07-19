@@ -2,193 +2,189 @@
 <title>Benchmark de Engines de Dados · Brasil — Augusto Neon</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-@font-face{font-family:'Archivo';font-style:normal;font-weight:100 900;font-display:swap;src:url(data:font/woff2;base64,%%ARCHIVO%%) format('woff2')}
-@font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,%%ARCHIVOBLACK%%) format('woff2')}
+@font-face{font-family:'Source Serif 4';font-style:normal;font-weight:400 700;font-display:swap;src:url(data:font/woff2;base64,%%SS4%%) format('woff2')}
 
 :root{
   color-scheme:light;
-  --papel:#ffffff;
-  --papel-2:#f6f6f3;
-  --tinta:#191713;
-  --tinta-2:#565349;
-  --regua:#d8d6cf;
-  --regua-forte:#191713;
-  --carimbo:oklch(0.46 0.17 262);
-  --carimbo-tinta:oklch(0.42 0.17 262);
-  --carimbo-fundo:oklch(0.96 0.02 262);
-  --urgente:oklch(0.5 0.19 28);
-  --urgente-fundo:oklch(0.96 0.02 28);
-  --e-pandas:#2a78d6;
-  --e-sqlite:#1baf7a;
-  --e-duckdb:#eda100;
-  --e-polars:#008300;
-  --sombra:0 1px 2px rgb(0 0 0/.06),0 8px 28px rgb(0 0 0/.07);
+  --mesa:#d9dbdf;
+  --folha:#ffffff;
+  --tinta:#211f1a;
+  --tinta-2:#5a5750;
+  --regua:#cfcdc6;
+  --regua-forte:#211f1a;
+  --acento:#1f6b47;          /* tinta verde-contábil */
+  --caneta:#a93a2c;          /* caneta vermelha do revisor */
+  --e-pandas:#2c65ab;
+  --e-sqlite:#a4472f;
+  --e-duckdb:#a87b1c;
+  --e-polars:#427d33;
+  --trilho:#f1f0ec;
+  --sombra-folha:0 1px 2px rgb(30 32 36/.18),0 10px 34px rgb(30 32 36/.16);
 }
 @media (prefers-color-scheme:dark){
   :root:where(:not([data-theme="light"])){
     color-scheme:dark;
-    --papel:#15171d;
-    --papel-2:#1b1e25;
-    --tinta:#eeede7;
-    --tinta-2:#b5b3aa;
-    --regua:#33363f;
-    --regua-forte:#eeede7;
-    --carimbo:oklch(0.72 0.13 262);
-    --carimbo-tinta:oklch(0.78 0.12 262);
-    --carimbo-fundo:oklch(0.26 0.05 262);
-    --urgente:oklch(0.72 0.15 28);
-    --urgente-fundo:oklch(0.26 0.05 28);
-    --e-pandas:#3987e5;
-    --e-sqlite:#199e70;
-    --e-duckdb:#c98500;
-    --e-polars:#3fa33f;
-    --sombra:0 1px 2px rgb(0 0 0/.4),0 8px 28px rgb(0 0 0/.45);
+    --mesa:#1c1e23;
+    --folha:#ecebe5;
+    --tinta:#232019;
+    --tinta-2:#5c5951;
+    --regua:#c6c4bc;
+    --regua-forte:#232019;
+    --trilho:#e2e1da;
+    --sombra-folha:0 2px 4px rgb(0 0 0/.5),0 14px 40px rgb(0 0 0/.45);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --papel:#15171d;
-  --papel-2:#1b1e25;
-  --tinta:#eeede7;
-  --tinta-2:#b5b3aa;
-  --regua:#33363f;
-  --regua-forte:#eeede7;
-  --carimbo:oklch(0.72 0.13 262);
-  --carimbo-tinta:oklch(0.78 0.12 262);
-  --carimbo-fundo:oklch(0.26 0.05 262);
-  --urgente:oklch(0.72 0.15 28);
-  --urgente-fundo:oklch(0.26 0.05 28);
-  --e-pandas:#3987e5;
-  --e-sqlite:#199e70;
-  --e-duckdb:#c98500;
-  --e-polars:#3fa33f;
-  --sombra:0 1px 2px rgb(0 0 0/.4),0 8px 28px rgb(0 0 0/.45);
+  --mesa:#1c1e23;
+  --folha:#ecebe5;
+  --tinta:#232019;
+  --tinta-2:#5c5951;
+  --regua:#c6c4bc;
+  --regua-forte:#232019;
+  --trilho:#e2e1da;
+  --sombra-folha:0 2px 4px rgb(0 0 0/.5),0 14px 40px rgb(0 0 0/.45);
 }
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;background:var(--papel-2);color:var(--tinta);
-  font-family:'Archivo',system-ui,sans-serif;
-  font-size:1.0625rem;line-height:1.62;
+  margin:0;background:var(--mesa);color:var(--tinta);
+  font-family:'Source Serif 4',Georgia,serif;
+  font-size:1.0625rem;line-height:1.66;
   -webkit-font-smoothing:antialiased;
+  padding:clamp(1rem,3.5vw,3.5rem) clamp(.6rem,2.5vw,2rem);
 }
-.folha{
-  max-width:1060px;margin:0 auto;background:var(--papel);
-  border-inline:1px solid var(--regua);
-  min-height:100vh;
-}
-main{display:block}
+.mesa{max-width:860px;margin:0 auto;display:grid;gap:clamp(1.2rem,3vw,2.2rem)}
 
-/* ---------- protocolo (barra topo) ---------- */
-.protocolo{
-  display:flex;flex-wrap:wrap;gap:.25rem 1.5rem;justify-content:space-between;
-  padding:.65rem clamp(1.25rem,4vw,3rem);
-  border-bottom:2px solid var(--regua-forte);
-  font-family:'Courier New',monospace;font-size:.78rem;letter-spacing:.04em;
-  color:var(--tinta-2);
+.pagina{
+  background:var(--folha);box-shadow:var(--sombra-folha);
+  padding:clamp(2rem,6vw,4.2rem) clamp(1.4rem,6vw,4.2rem) clamp(1.4rem,4vw,2.4rem);
+  position:relative;
 }
-.protocolo b{color:var(--tinta);font-weight:700}
+.pagina-corpo{min-height:0}
+.pagina-pe{
+  margin-top:clamp(1.8rem,4vw,2.8rem);padding-top:.6rem;
+  border-top:1px solid var(--regua);
+  display:flex;justify-content:space-between;gap:1rem;
+  font-family:'Courier New',monospace;font-size:.72rem;letter-spacing:.05em;color:var(--tinta-2);
+}
 
-/* ---------- hero ---------- */
-.hero{padding:clamp(2.5rem,7vw,5.5rem) clamp(1.25rem,4vw,3rem) clamp(2rem,5vw,4rem);position:relative}
-.kicker{
-  font-family:'Courier New',monospace;font-size:.82rem;letter-spacing:.06em;
-  color:var(--carimbo-tinta);margin:0 0 1.4rem;
-}
-h1{
-  font-family:'Archivo Black',sans-serif;font-weight:400;
-  font-size:clamp(2.6rem,7.2vw,5.4rem);line-height:1.02;
-  letter-spacing:-0.015em;margin:0 0 1.6rem;text-wrap:balance;
-}
-h1 .contra{color:var(--carimbo)}
-.hero-sub{max-width:56ch;font-size:clamp(1.05rem,1.6vw,1.25rem);margin:0 0 2.4rem;color:var(--tinta-2)}
-.hero-sub b{color:var(--tinta)}
+.mono{font-family:'Courier New',monospace}
+a{color:var(--acento)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--acento);outline-offset:2px}
 
-.carimbo-selo{
-  position:absolute;top:clamp(1rem,4vw,3rem);right:clamp(1rem,4vw,3rem);
-  border:3px double var(--carimbo);color:var(--carimbo);
-  font-family:'Courier New',monospace;font-weight:700;font-size:.72rem;letter-spacing:.14em;
-  padding:.7rem .9rem;text-align:center;line-height:1.5;
-  transform:rotate(6deg);border-radius:4px;
-  user-select:none;pointer-events:none;
-  opacity:.92;
+/* ---------- capa ---------- */
+.capa-cabeca{
+  border-top:3px double var(--regua-forte);border-bottom:3px double var(--regua-forte);
+  padding:.55rem 0;display:flex;flex-wrap:wrap;gap:.3rem 1.5rem;justify-content:space-between;
+  font-family:'Courier New',monospace;font-size:.75rem;letter-spacing:.06em;color:var(--tinta-2);
 }
-@media (max-width:720px){.carimbo-selo{position:static;display:inline-block;margin-bottom:1.5rem;transform:rotate(-2deg)}}
+.capa-cabeca b{color:var(--tinta)}
+.capa-titulo{
+  font-size:clamp(1.9rem,4.6vw,3.1rem);font-weight:700;line-height:1.14;
+  letter-spacing:-0.012em;margin:clamp(2.2rem,6vw,3.6rem) 0 1rem;text-wrap:balance;
+}
+.capa-sub{font-size:1.1rem;color:var(--tinta-2);max-width:58ch;margin:0 0 2.4rem;text-wrap:pretty}
+.capa-sub b{color:var(--tinta)}
 
-.cta-row{display:flex;flex-wrap:wrap;gap:.9rem}
+.resumo{
+  border:1px solid var(--regua-forte);padding:1.3rem 1.5rem;margin:0 0 2.4rem;
+  max-width:60ch;
+}
+.resumo .r-titulo{font-family:'Courier New',monospace;font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--acento);display:block;margin-bottom:.5rem}
+.resumo p{margin:0;text-wrap:pretty}
+.resumo .num{font-weight:700;font-variant-numeric:tabular-nums}
+
+.assinatura-bloco{margin:0 0 2.6rem}
+.assinatura-bloco .autor{font-weight:700;font-size:1.15rem}
+.assinatura-bloco .cargo{color:var(--tinta-2);font-size:.95rem}
+.cta-row{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem}
 .btn{
-  display:inline-flex;align-items:center;gap:.55rem;
-  font:inherit;font-weight:700;font-size:1rem;text-decoration:none;
-  padding:.85rem 1.5rem;border-radius:4px;
-  transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .18s;
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:'Courier New',monospace;font-weight:700;font-size:.85rem;letter-spacing:.04em;
+  text-decoration:none;padding:.7rem 1.15rem;border:1.5px solid var(--tinta);
+  color:var(--tinta);background:transparent;
+  transition:background .15s ease,color .15s ease;
 }
-.btn:hover{transform:translateY(-2px);box-shadow:var(--sombra)}
-.btn:focus-visible{outline:3px solid var(--carimbo);outline-offset:2px}
-.btn-git{background:var(--tinta);color:var(--papel);border:2px solid var(--tinta)}
-.btn-li{background:transparent;color:var(--carimbo-tinta);border:2px solid var(--carimbo)}
-.btn svg{flex:none}
+.btn:hover{background:var(--tinta);color:var(--folha)}
+.btn-acento{border-color:var(--acento);color:var(--acento)}
+.btn-acento:hover{background:var(--acento);color:var(--folha)}
 
-/* ---------- seções ---------- */
-section{padding:clamp(2.2rem,5vw,4rem) clamp(1.25rem,4vw,3rem)}
-section + section{border-top:2px solid var(--regua-forte)}
-.sec-head{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.carimbo{
+  position:absolute;right:clamp(1rem,5vw,3.4rem);top:clamp(4.6rem,14vw,7.4rem);
+  border:2.5px double var(--caneta);color:var(--caneta);
+  font-family:'Courier New',monospace;font-weight:700;font-size:.66rem;letter-spacing:.14em;
+  padding:.55rem .75rem;line-height:1.55;text-align:center;
+  transform:rotate(-4deg);opacity:.85;user-select:none;pointer-events:none;
+}
+@media (max-width:760px){.carimbo{position:static;display:inline-block;margin-bottom:1.6rem}}
+
+.sumario{margin:0;padding:0;list-style:none;max-width:56ch}
+.sumario-titulo{
+  font-family:'Courier New',monospace;font-size:.75rem;font-weight:700;letter-spacing:.16em;
+  color:var(--tinta-2);margin:0 0 .8rem;
+}
+.sumario li{display:flex;align-items:baseline;gap:.55rem;padding:.32rem 0}
+.sumario a{color:var(--tinta);text-decoration:none;font-weight:500}
+.sumario a:hover{color:var(--acento);text-decoration:underline}
+.sumario .pontilha{flex:1;border-bottom:2px dotted var(--regua);translate:0 -4px}
+.sumario .pg{font-family:'Courier New',monospace;font-size:.8rem;color:var(--tinta-2)}
+
+/* ---------- corpo ---------- */
 h2{
-  font-family:'Archivo Black',sans-serif;font-weight:400;
-  font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.1;margin:0;text-wrap:balance;
+  font-size:clamp(1.35rem,3vw,1.8rem);font-weight:700;line-height:1.2;
+  margin:0 0 .4rem;text-wrap:balance;
 }
-.sec-num{
-  font-family:'Courier New',monospace;font-size:.8rem;color:var(--tinta-2);letter-spacing:.08em;
-}
-.prosa{max-width:68ch;color:var(--tinta-2);text-wrap:pretty}
+h2 .h-num{color:var(--acento)}
+.h-linha{border:0;border-top:1.5px solid var(--regua-forte);margin:0 0 1.8rem}
+.prosa{max-width:64ch;text-wrap:pretty}
+.prosa.suave{color:var(--tinta-2)}
 .prosa b,.prosa strong{color:var(--tinta)}
 
-/* ficha (tabela-formulário) */
-.ficha{border:2px solid var(--regua-forte);border-radius:4px;overflow:hidden;margin-top:2rem}
-.ficha-row{display:grid;grid-template-columns:minmax(130px,220px) 1fr;border-top:1px solid var(--regua)}
-.ficha-row:first-child{border-top:0}
-.ficha-row dt{
-  padding:.8rem 1.1rem;font-family:'Courier New',monospace;font-size:.78rem;
-  letter-spacing:.06em;color:var(--tinta-2);background:var(--papel-2);
-  border-right:1px solid var(--regua);display:flex;align-items:center;
+/* tabela-ficha */
+.ficha{width:100%;border-collapse:collapse;margin-top:1.6rem;border-top:1.5px solid var(--regua-forte);border-bottom:1.5px solid var(--regua-forte)}
+.ficha th{
+  text-align:left;vertical-align:top;white-space:nowrap;
+  font-family:'Courier New',monospace;font-weight:700;font-size:.74rem;letter-spacing:.08em;
+  color:var(--tinta-2);padding:.7rem 1.2rem .7rem 0;border-top:1px solid var(--regua);
 }
-.ficha-row dd{margin:0;padding:.8rem 1.1rem}
-.ficha-row dd b{font-variant-numeric:tabular-nums}
-@media (max-width:560px){.ficha-row{grid-template-columns:1fr}.ficha-row dt{border-right:0;border-bottom:1px dashed var(--regua)}}
+.ficha td{padding:.7rem 0;border-top:1px solid var(--regua);vertical-align:top}
+.ficha tr:first-child th,.ficha tr:first-child td{border-top:0}
+.ficha td b{font-variant-numeric:tabular-nums}
+@media (max-width:560px){
+  .ficha,.ficha tbody,.ficha tr,.ficha th,.ficha td{display:block}
+  .ficha th{padding-bottom:0;border-top:1px solid var(--regua)}
+  .ficha td{border-top:0;padding-top:.15rem}
+}
 
-.destaque-caixa{
-  margin-top:2rem;border:2px solid var(--carimbo);background:var(--carimbo-fundo);
-  border-radius:4px;padding:1.2rem 1.4rem;max-width:62ch;
-  color:var(--tinta);
+/* metodologia — lista numerada de relatório */
+.metodo{margin:1.6rem 0 0;padding:0;list-style:none;counter-reset:etapa;max-width:66ch}
+.metodo li{counter-increment:etapa;position:relative;padding:.95rem 0 .95rem 3.3rem;border-top:1px solid var(--regua)}
+.metodo li:first-child{border-top:0}
+.metodo li::before{
+  content:counter(etapa) ".";position:absolute;left:.2rem;top:.9rem;
+  font-family:'Courier New',monospace;font-weight:700;font-size:1.05rem;color:var(--acento);
 }
-.destaque-caixa .rotulo{font-family:'Courier New',monospace;font-size:.72rem;letter-spacing:.14em;color:var(--carimbo-tinta);display:block;margin-bottom:.4rem;font-weight:700}
+.metodo b{display:block}
+.metodo p{margin:.1rem 0 0;color:var(--tinta-2)}
 
-/* rito (passos numerados — sequência real) */
-.rito{list-style:none;margin:2rem 0 0;padding:0;counter-reset:passo}
-.rito li{
-  counter-increment:passo;position:relative;
-  padding:1.15rem 0 1.15rem 4.4rem;border-top:1px solid var(--regua);
+/* figuras */
+.figura{margin:2.4rem 0 0;border-top:1px solid var(--regua);padding-top:1.6rem}
+.figura:first-of-type{margin-top:1.8rem;border-top:0;padding-top:0}
+.fig-legenda{
+  font-family:'Courier New',monospace;font-size:.78rem;letter-spacing:.04em;
+  color:var(--tinta-2);margin:0 0 1.1rem;
 }
-.rito li:first-child{border-top:0}
-.rito li::before{
-  content:counter(passo,decimal-leading-zero);
-  position:absolute;left:0;top:1.05rem;
-  font-family:'Courier New',monospace;font-weight:700;font-size:1.15rem;
-  color:var(--carimbo);
-}
-.rito b{display:block;margin-bottom:.15rem}
-.rito p{margin:0;color:var(--tinta-2);max-width:62ch}
+.fig-legenda b{color:var(--tinta)}
+.fig-nota{font-size:.9rem;color:var(--tinta-2);margin:.9rem 0 0;max-width:64ch}
 
-/* ---------- gráficos ---------- */
-.grafico{margin-top:2.6rem}
-.grafico h3{font-size:1.15rem;font-weight:700;margin:0 0 .3rem}
-.grafico .nota{font-size:.85rem;color:var(--tinta-2);margin:0 0 1.3rem;max-width:70ch}
-.barras{display:grid;gap:.75rem}
-.linha-barra{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:.9rem}
-.linha-barra .nome{font-weight:500;font-size:.92rem;text-align:right}
-.trilho{position:relative;height:30px;background:var(--papel-2);border-radius:3px;overflow:visible}
+.barras{display:grid;gap:.65rem}
+.linha-barra{display:grid;grid-template-columns:74px 1fr;align-items:center;gap:.85rem}
+.linha-barra .nome{font-size:.9rem;font-weight:500;text-align:right}
+.trilho{position:relative;height:26px;background:var(--trilho);overflow:visible}
 .barra{
-  position:absolute;inset:2px auto 2px 0;border-radius:2px;min-width:3px;
+  position:absolute;inset:2px auto 2px 0;min-width:3px;
   width:var(--w);transform-origin:left center;transform:scaleX(1);
 }
 .barra.pandas{background:var(--e-pandas)}
@@ -196,228 +192,255 @@ h2{
 .barra.duckdb{background:var(--e-duckdb)}
 .barra.polars{background:var(--e-polars)}
 .valor{
-  position:absolute;left:calc(var(--w) + .6rem);top:50%;translate:0 -50%;
-  font-family:'Courier New',monospace;font-weight:700;font-size:.85rem;
+  position:absolute;left:calc(var(--w) + .55rem);top:50%;translate:0 -50%;
+  font-family:'Courier New',monospace;font-weight:700;font-size:.82rem;
   white-space:nowrap;font-variant-numeric:tabular-nums;
 }
+.valor.caneta{color:var(--caneta)}
 @media (prefers-reduced-motion:no-preference){
-  .js .trilho .barra{transform:scaleX(0);transition:transform .9s cubic-bezier(.22,1,.36,1)}
-  .js .trilho .valor{opacity:0;transition:opacity .4s ease .5s}
+  .js .trilho .barra{transform:scaleX(0);transition:transform .85s cubic-bezier(.22,1,.36,1)}
+  .js .trilho .valor{opacity:0;transition:opacity .35s ease .48s}
   .js .trilho.on .barra{transform:scaleX(1)}
   .js .trilho.on .valor{opacity:1}
 }
 @media (max-width:640px){
-  .linha-barra{grid-template-columns:62px 1fr;gap:.6rem}
-  .linha-barra .nome{font-size:.8rem}
+  .linha-barra{grid-template-columns:60px 1fr;gap:.55rem}
+  .linha-barra .nome{font-size:.78rem}
   .barra{width:calc(var(--w) * .72)}
-  .valor{left:calc(var(--w) * .72 + .5rem);font-size:.78rem}
+  .valor{left:calc(var(--w) * .72 + .45rem);font-size:.74rem}
 }
-.valor.urgente{color:var(--urgente)}
-.trilho:hover .barra{filter:brightness(1.08)}
 
 /* seletor de queries */
-.q-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1.4rem}
+.q-tabs{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 1.1rem}
 .q-tab{
-  font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;
-  padding:.5rem .85rem;border-radius:3px;
-  background:var(--papel);color:var(--tinta-2);
-  border:1.5px solid var(--regua);
+  font-family:'Courier New',monospace;font-size:.78rem;font-weight:700;letter-spacing:.03em;
+  cursor:pointer;padding:.45rem .7rem;
+  background:transparent;color:var(--tinta-2);border:1px solid var(--regua);
   transition:border-color .15s,color .15s,background .15s;
 }
-.q-tab:hover{border-color:var(--tinta-2);color:var(--tinta)}
-.q-tab:focus-visible{outline:3px solid var(--carimbo);outline-offset:2px}
-.q-tab[aria-pressed="true"]{background:var(--carimbo-fundo);border-color:var(--carimbo);color:var(--carimbo-tinta);font-weight:700}
-.q-desc{font-size:.9rem;color:var(--tinta-2);margin:0 0 1.2rem;min-height:1.4em}
+.q-tab:hover{border-color:var(--tinta);color:var(--tinta)}
+.q-tab[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--folha)}
+.q-desc{font-size:.92rem;color:var(--tinta-2);margin:0 0 1.2rem;min-height:1.5em;max-width:64ch}
 .veredito{
-  margin-top:1.4rem;font-family:'Courier New',monospace;font-size:.85rem;font-weight:700;
-  color:var(--carimbo-tinta);letter-spacing:.02em;
+  margin-top:1.3rem;font-family:'Courier New',monospace;font-size:.85rem;font-weight:700;
+  color:var(--caneta);
 }
+.veredito::before{content:"→ "}
 
 /* ocorrências */
-.ocorrencias{margin:2rem 0 0;padding:0;list-style:none;display:grid;gap:1rem}
-.ocorrencias li{border:1.5px solid var(--regua);border-radius:4px;padding:1.15rem 1.3rem}
-.ocorrencias .oc-tag{
-  font-family:'Courier New',monospace;font-size:.72rem;font-weight:700;letter-spacing:.12em;
-  color:var(--urgente);display:block;margin-bottom:.35rem;
+.ocorrencias{margin:1.6rem 0 0;padding:0;list-style:none;max-width:68ch}
+.ocorrencias li{padding:1.05rem 0;border-top:1px solid var(--regua)}
+.ocorrencias li:first-child{border-top:0}
+.oc-tag{
+  font-family:'Courier New',monospace;font-size:.7rem;font-weight:700;letter-spacing:.12em;
+  color:var(--caneta);display:block;margin-bottom:.25rem;
 }
-.ocorrencias b{display:block;margin-bottom:.2rem}
-.ocorrencias p{margin:0;color:var(--tinta-2);max-width:66ch}
+.ocorrencias b{display:block}
+.ocorrencias p{margin:.15rem 0 0;color:var(--tinta-2)}
 
 /* inventário */
-.inventario{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2.5rem;margin-top:2rem}
-.inventario h3{font-size:1.05rem;margin:0 0 1rem;font-weight:700}
+.inventario{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:2.2rem;margin-top:1.6rem}
+.inventario h3{font-size:1rem;font-weight:700;margin:0 0 .6rem}
 .inv-lista{margin:0;padding:0;list-style:none}
 .inv-lista li{
   display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
-  padding:.6rem 0;border-top:1px dashed var(--regua);
+  padding:.5rem 0;border-top:1px dotted var(--regua);
 }
 .inv-lista li:first-child{border-top:0}
 .inv-lista .item{font-weight:500}
-.inv-lista .uso{font-size:.82rem;color:var(--tinta-2);text-align:right}
+.inv-lista .uso{font-family:'Courier New',monospace;font-size:.72rem;color:var(--tinta-2);text-align:right;letter-spacing:.02em}
 
-/* rodapé */
-footer{
-  border-top:2px solid var(--regua-forte);
-  padding:clamp(2.5rem,6vw,4.5rem) clamp(1.25rem,4vw,3rem);
-  position:relative;
-}
-.assina{font-family:'Courier New',monospace;font-size:.82rem;color:var(--tinta-2);margin-top:2.6rem}
-.assina .nome-a{font-family:'Archivo Black',sans-serif;font-size:1.5rem;color:var(--tinta);display:block;margin-bottom:.2rem}
-.carimbo-arquivado{
-  display:inline-block;border:3px double var(--urgente);color:var(--urgente);
-  font-family:'Courier New',monospace;font-weight:700;font-size:.72rem;letter-spacing:.14em;
-  padding:.55rem .8rem;border-radius:4px;transform:rotate(-4deg);
-  margin-top:1.6rem;
-}
+/* conclusão / encerramento */
+.conclusao{max-width:64ch}
+.assina-final{margin-top:2.6rem}
+.assina-final .traco{width:min(300px,70%);border-top:1px solid var(--tinta);margin-bottom:.35rem}
+.assina-final .nome{font-weight:700}
+.assina-final .data{font-family:'Courier New',monospace;font-size:.78rem;color:var(--tinta-2)}
 
-/* motion */
-.rev{opacity:1;transform:none}
 @media (prefers-reduced-motion:no-preference){
-  .js .rev{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s cubic-bezier(.22,1,.36,1)}
-  .js .rev.on{opacity:1;transform:none}
-  .js .carimbo-selo{opacity:0;transform:rotate(6deg) scale(1.55)}
-  .js .carimbo-selo.on{opacity:.92;transform:rotate(6deg) scale(1);transition:opacity .3s ease,transform .38s cubic-bezier(.16,1,.3,1)}
-  @media (max-width:720px){.js .carimbo-selo.on{transform:rotate(-2deg) scale(1)}}
+  .js .carimbo{opacity:0;transform:rotate(-4deg) scale(1.5)}
+  .js .carimbo.on{opacity:.85;transform:rotate(-4deg) scale(1);transition:opacity .3s ease,transform .38s cubic-bezier(.16,1,.3,1)}
+  @media (max-width:760px){.js .carimbo.on{transform:rotate(-4deg) scale(1)}}
 }
-@media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  .barra{transition:none}
-  .btn{transition:none}
-}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 </style>
 
-<div class="folha">
-<header class="protocolo" role="banner">
-  <span>PROCESSO <b>Nº 2026.07-BENCH/BR</b></span>
-  <span>NATUREZA: <b>RELATÓRIO TÉCNICO</b></span>
-  <span>SITUAÇÃO: <b>REPRODUTÍVEL</b></span>
-</header>
+<div class="mesa">
 
-<main>
-<div class="hero">
-  <div class="carimbo-selo" aria-hidden="true">VERIFICADO<br>4 ENGINES<br>CONCORDAM</div>
-  <p class="kicker">Dados abertos do Governo Federal · CNPJ (Receita Federal) + Acidentes (PRF)</p>
-  <h1>146 segundos <span class="contra">contra 0,4.</span></h1>
-  <p class="hero-sub">Quatro engines de dados — <b>Pandas, SQLite, DuckDB e Polars</b> — executando as mesmas seis queries sobre <b>15,7 milhões de registros reais</b> do cadastro nacional de empresas. Mesma máquina, mesma semântica, resultados idênticos. Só o tempo muda. E muda muito.</p>
-  <div class="cta-row">
-    <a class="btn btn-git" href="https://github.com/AugustoNeon/-Benchmark-de-Engines-de-Dados-sobre-Datasets-P-blicos-do-Brasil" target="_blank" rel="noopener">
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-      Ver o código no GitHub</a>
-    <a class="btn btn-li" href="https://www.linkedin.com/in/augustoneon/" target="_blank" rel="noopener">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg>
-      Conectar no LinkedIn</a>
+<!-- FOLHA 1 — capa -->
+<div class="pagina" id="capa">
+  <div class="pagina-corpo">
+    <header class="capa-cabeca" role="banner">
+      <span>RELATÓRIO TÉCNICO <b>Nº 2026.07-BENCH/BR</b></span>
+      <span>JULHO DE 2026</span>
+    </header>
+    <div class="carimbo" aria-hidden="true">VERIFICADO<br>4 ENGINES CONCORDAM</div>
+    <h1 class="capa-titulo">Benchmark de engines de dados sobre datasets públicos do Brasil</h1>
+    <p class="capa-sub">Pandas, SQLite, DuckDB e Polars diante das mesmas seis queries, sobre <b>15,7 milhões de registros reais</b> do cadastro nacional de empresas (Receita Federal) e 205 mil acidentes de rodovia (PRF).</p>
+
+    <div class="resumo">
+      <span class="r-titulo">RESUMO EXECUTIVO</span>
+      <p>Carregar os mesmos dados levou <span class="num">146 segundos</span> no SQLite e <span class="num">0,4 segundo</span> no Polars. Na query mais pesada, o DuckDB foi <span class="num">51×</span> mais rápido que o SQLite — mesma máquina, mesma semântica, resultados idênticos verificados linha a linha.</p>
+    </div>
+
+    <div class="assinatura-bloco">
+      <div class="autor">Augusto Neon</div>
+      <div class="cargo">Autor e relator</div>
+      <div class="cta-row">
+        <a class="btn" href="https://github.com/AugustoNeon/-Benchmark-de-Engines-de-Dados-sobre-Datasets-P-blicos-do-Brasil" target="_blank" rel="noopener">CÓDIGO NO GITHUB ↗</a>
+        <a class="btn btn-acento" href="https://www.linkedin.com/in/augustoneon/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      </div>
+    </div>
+
+    <nav aria-label="Sumário">
+      <p class="sumario-titulo">SUMÁRIO</p>
+      <ol class="sumario">
+        <li><a href="#objeto">1. Objeto e fontes</a><span class="pontilha"></span><span class="pg">fl. 2</span></li>
+        <li><a href="#metodo">2. Metodologia</a><span class="pontilha"></span><span class="pg">fl. 3</span></li>
+        <li><a href="#resultados">3. Resultados</a><span class="pontilha"></span><span class="pg">fl. 4</span></li>
+        <li><a href="#ocorrencias">4. Ocorrências de campo</a><span class="pontilha"></span><span class="pg">fl. 5</span></li>
+        <li><a href="#inventario">5. Inventário técnico e conclusão</a><span class="pontilha"></span><span class="pg">fl. 6</span></li>
+      </ol>
+    </nav>
   </div>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 1/6</span></div>
 </div>
 
-<section class="rev" aria-labelledby="t-autos">
-  <div class="sec-head"><span class="sec-num">FL. 02 —</span><h2 id="t-autos">Autos do processo</h2></div>
-  <p class="prosa">Pouca gente sabe: a Receita Federal publica, <b>todo mês e de graça</b>, o cadastro completo de todas as empresas já abertas no Brasil — mais de 60 milhões de CNPJs. Este benchmark usa esse dado do jeito que ele vem: cru, gigante e cheio de armadilhas.</p>
-  <dl class="ficha">
-    <div class="ficha-row"><dt>OBJETO</dt><dd>Comparação de performance entre 4 engines de consulta embutidas, sob as mesmas 6 queries analíticas</dd></div>
-    <div class="ficha-row"><dt>FONTE 1</dt><dd>Cadastro Nacional de Empresas (CNPJ) — Dados Abertos da Receita Federal, recorte SP·RJ·MG·BA: <b>15.700.270 estabelecimentos</b> + <b>6.524.326 empresas</b></dd></div>
-    <div class="ficha-row"><dt>FONTE 2</dt><dd>Acidentes em rodovias federais — Polícia Rodoviária Federal, 2022–2024: <b>205.528 ocorrências</b></dd></div>
-    <div class="ficha-row"><dt>RÉUS</dt><dd>Pandas 3.0 · SQLite 3.49 · DuckDB 1.5 · Polars 1.42 — todas embutidas, sem servidor</dd></div>
-    <div class="ficha-row"><dt>MÁQUINA</dt><dd>AMD Ryzen 5 5600G · 16 GB RAM · SSD · Windows 10 · Python 3.12</dd></div>
-  </dl>
-  <div class="destaque-caixa">
-    <span class="rotulo">NOTA DE METODOLOGIA</span>
-    Corretude antes de velocidade: as 4 engines rodaram as 6 queries numa amostra e os resultados foram comparados <b>linha a linha</b>. Só depois de concordarem é que o cronômetro valeu.
+<!-- FOLHA 2 — objeto -->
+<div class="pagina" id="objeto">
+  <div class="pagina-corpo">
+    <h2><span class="h-num">1.</span> Objeto e fontes</h2>
+    <hr class="h-linha">
+    <p class="prosa">Pouca gente sabe: a Receita Federal publica, todo mês e gratuitamente, o cadastro completo de todas as empresas já abertas no Brasil — mais de 60 milhões de CNPJs. Este relatório usa esse dado do jeito que ele vem: cru, grande e cheio de armadilhas. O objetivo é medir o que a escolha da engine custa, em segundos, sobre uma carga analítica realista.</p>
+    <table class="ficha">
+      <tr><th scope="row">OBJETO</th><td>Comparação de performance entre 4 engines de consulta embutidas, sob as mesmas 6 queries analíticas</td></tr>
+      <tr><th scope="row">FONTE 1</th><td>Cadastro Nacional de Empresas (CNPJ) — Dados Abertos da Receita Federal, recorte SP·RJ·MG·BA: <b>15.700.270 estabelecimentos</b> e <b>6.524.326 empresas</b></td></tr>
+      <tr><th scope="row">FONTE 2</th><td>Acidentes em rodovias federais — Polícia Rodoviária Federal, 2022–2024: <b>205.528 ocorrências</b></td></tr>
+      <tr><th scope="row">ENGINES</th><td>Pandas 3.0 · SQLite 3.49 · DuckDB 1.5 · Polars 1.42 — todas embutidas no processo, sem servidor</td></tr>
+      <tr><th scope="row">AMBIENTE</th><td>AMD Ryzen 5 5600G · 16 GB RAM · SSD · Windows 10 · Python 3.12</td></tr>
+      <tr><th scope="row">REPRODUÇÃO</th><td>4 comandos a partir do repositório público; os scripts baixam os dados das fontes oficiais</td></tr>
+    </table>
   </div>
-</section>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 2/6</span></div>
+</div>
 
-<section class="rev" aria-labelledby="t-rito">
-  <div class="sec-head"><span class="sec-num">FL. 03 —</span><h2 id="t-rito">O rito</h2></div>
-  <ol class="rito">
-    <li><b>Download programático</b><p>A Receita desativou as URLs diretas antigas — os arquivos hoje vivem num Nextcloud público. O script navega o share via WebDAV (PROPFIND) e descobre sozinho o mês mais recente completo.</p></li>
-    <li><b>Normalização</b><p>CSV sem cabeçalho, ISO-8859-1, vírgula decimal, datas AAAAMMDD onde “0” significa nulo, aspas escapadas à moda RFC-4180. Tudo tratado e documentado.</p></li>
-    <li><b>Conversão a Parquet</b><p>Formato colunar padronizado, mesmo insumo para todas as engines. Recorte regional aplicado aqui (a RFB não publica por estado).</p></li>
-    <li><b>Prova de corretude</b><p>6 queries × 4 engines numa amostra determinística, comparação linha a linha, desempate explícito em toda ordenação.</p></li>
-    <li><b>Medição isolada</b><p>Um subprocesso por engine. Carga medida separada das queries; cada query roda 5×, a primeira é descartada, vale a mediana. Pico de memória amostrado a cada 50 ms.</p></li>
-  </ol>
-</section>
-
-<section class="rev" aria-labelledby="t-provas">
-  <div class="sec-head"><span class="sec-num">FL. 04 —</span><h2 id="t-provas">As provas</h2></div>
-
-  <div class="grafico" id="g-carga">
-    <h3>Tempo de carga — Parquet → engine pronta para consulta</h3>
-    <p class="nota">Escala linear honesta. A barra do SQLite não está quebrada: ela é assim mesmo. Inserir 22 milhões de linhas uma a uma tem preço.</p>
-    <div class="barras" role="img" aria-label="Tempo de carga: Polars 0,39 segundos; DuckDB 0,9 segundos; Pandas 3,88 segundos; SQLite 146,1 segundos"></div>
+<!-- FOLHA 3 — metodologia -->
+<div class="pagina" id="metodo">
+  <div class="pagina-corpo">
+    <h2><span class="h-num">2.</span> Metodologia</h2>
+    <hr class="h-linha">
+    <p class="prosa suave">Benchmark com resultado errado não vale nada. O rito abaixo foi desenhado para que os números resistam a contestação.</p>
+    <ol class="metodo">
+      <li><b>Download programático</b><p>A Receita desativou as URLs diretas antigas; os arquivos hoje vivem num Nextcloud público. O script navega o share via WebDAV (PROPFIND) e localiza sozinho o mês mais recente completo.</p></li>
+      <li><b>Normalização</b><p>CSV sem cabeçalho, ISO-8859-1, vírgula decimal, datas AAAAMMDD onde “0” significa nulo, aspas escapadas à moda RFC-4180 — cada armadilha tratada e documentada.</p></li>
+      <li><b>Conversão a Parquet</b><p>Formato colunar padronizado, mesmo insumo para todas as engines. Recorte regional aplicado aqui, pois a RFB não publica por estado.</p></li>
+      <li><b>Prova de corretude</b><p>As 6 queries rodam numa amostra determinística nas 4 engines e os resultados são comparados linha a linha, com desempate explícito em toda ordenação. Só depois o cronômetro vale.</p></li>
+      <li><b>Medição isolada</b><p>Um subprocesso por engine. Carga medida separada das queries; cada query roda 5 vezes, a primeira é descartada, reporta-se a mediana. Pico de memória amostrado a cada 50 ms.</p></li>
+    </ol>
   </div>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 3/6</span></div>
+</div>
 
-  <div class="grafico" id="g-queries">
-    <h3>Tempo mediano por query — escolha a query</h3>
-    <p class="nota">Mediana de 4 execuções após aquecimento. Clique nas queries para comparar; a escala se ajusta à query escolhida.</p>
-    <div class="q-tabs" role="group" aria-label="Seletor de query"></div>
-    <p class="q-desc"></p>
-    <div class="barras" role="img"></div>
-    <p class="veredito" aria-live="polite"></p>
-  </div>
+<!-- FOLHA 4 — resultados -->
+<div class="pagina" id="resultados">
+  <div class="pagina-corpo">
+    <h2><span class="h-num">3.</span> Resultados</h2>
+    <hr class="h-linha">
 
-  <div class="grafico" id="g-mem">
-    <h3>Pico de memória do processo — carga + queries</h3>
-    <p class="nota">RSS máximo observado. O join de 15,7M × 6,5M linhas cobra caro do Pandas; o DuckDB faz o mesmo trabalho com um terço da memória.</p>
-    <div class="barras" role="img" aria-label="Pico de memória: DuckDB 2.180 megabytes; SQLite 3.740; Polars 4.800; Pandas 6.404"></div>
-  </div>
-</section>
-
-<section class="rev" aria-labelledby="t-ocorr">
-  <div class="sec-head"><span class="sec-num">FL. 05 —</span><h2 id="t-ocorr">Ocorrências registradas</h2></div>
-  <p class="prosa">Dado público de verdade morde. Estas foram as quatro mordidas documentadas durante a construção — cada uma virou código e commit.</p>
-  <ul class="ocorrencias">
-    <li><span class="oc-tag">OCORRÊNCIA 01 · INFRAESTRUTURA</span><b>As URLs oficiais morreram no meio do caminho</b><p>A Receita migrou a distribuição para um Nextcloud (SERPRO+) e as URLs diretas documentadas país afora pararam de funcionar. Solução: falar WebDAV direto com o share público e descobrir a pasta mensal via PROPFIND.</p></li>
-    <li><span class="oc-tag">OCORRÊNCIA 02 · INFRAESTRUTURA</span><b>A PRF mudou para o Google Drive</b><p>Os CSVs de acidentes saíram do servidor próprio e viraram links de Drive dentro de uma tabela HTML — sem o ano no texto do link. O raspador extrai o par ano→arquivo do contexto da tabela.</p></li>
-    <li><span class="oc-tag">OCORRÊNCIA 03 · PARSING</span><b>Aspas dentro de aspas</b><p>Um endereço real — <i>ESQ COM RUA ""C""</i> — derrubou o parser: a RFB escapa aspas à moda RFC-4180, mas o sniffer do DuckDB não detecta sozinho. Escape explícito resolveu.</p></li>
-    <li><span class="oc-tag">OCORRÊNCIA 04 · TIPOS</span><b>Datas que não são datas</b><p>AAAAMMDD como texto, “0” e “00000000” significando nulo, encoding que muda por ano nos arquivos da PRF, e colunas DATE do Parquet virando objetos não-vetorizáveis no Pandas. Cada caso, um tratamento.</p></li>
-  </ul>
-</section>
-
-<section class="rev" aria-labelledby="t-inv">
-  <div class="sec-head"><span class="sec-num">FL. 06 —</span><h2 id="t-inv">Inventário técnico</h2></div>
-  <div class="inventario">
-    <div>
-      <h3>Ferramentas</h3>
-      <ul class="inv-lista">
-        <li><span class="item">Python 3.12</span><span class="uso">pipeline completo</span></li>
-        <li><span class="item">DuckDB</span><span class="uso">engine colunar + ETL</span></li>
-        <li><span class="item">Polars</span><span class="uso">dataframes lazy em Rust</span></li>
-        <li><span class="item">Pandas</span><span class="uso">baseline clássico</span></li>
-        <li><span class="item">SQLite</span><span class="uso">baseline relacional</span></li>
-        <li><span class="item">PyArrow / Parquet</span><span class="uso">formato colunar comum</span></li>
-        <li><span class="item">psutil</span><span class="uso">medição de memória</span></li>
-        <li><span class="item">Matplotlib</span><span class="uso">gráficos do relatório</span></li>
-      </ul>
+    <div class="figura" id="g-carga">
+      <p class="fig-legenda"><b>FIGURA 1</b> — Tempo de carga: Parquet → engine pronta para consulta (menor = melhor)</p>
+      <div class="barras" role="img" aria-label="Tempo de carga: Polars 0,39 segundos; DuckDB 0,9 segundos; Pandas 3,88 segundos; SQLite 146,1 segundos"></div>
+      <p class="fig-nota">Escala linear, sem cortes. A barra do SQLite é assim mesmo: inserir 22 milhões de linhas uma a uma tem preço.</p>
     </div>
-    <div>
-      <h3>Habilidades demonstradas</h3>
-      <ul class="inv-lista">
-        <li><span class="item">Metodologia de benchmark</span><span class="uso">mediana, aquecimento, isolamento</span></li>
-        <li><span class="item">ETL de dados públicos</span><span class="uso">encoding, layout, escala</span></li>
-        <li><span class="item">Raspagem resiliente</span><span class="uso">WebDAV, HTML, Drive</span></li>
-        <li><span class="item">Validação cruzada</span><span class="uso">corretude antes de velocidade</span></li>
-        <li><span class="item">SQL + APIs de dataframe</span><span class="uso">mesma query, 4 dialetos</span></li>
-        <li><span class="item">Visualização de dados</span><span class="uso">acessível e honesta</span></li>
-        <li><span class="item">Reprodutibilidade</span><span class="uso">do zero com 4 comandos</span></li>
-      </ul>
+
+    <div class="figura" id="g-queries">
+      <p class="fig-legenda"><b>FIGURA 2</b> — Tempo mediano por query (interativa: selecione a query)</p>
+      <div class="q-tabs" role="group" aria-label="Seletor de query"></div>
+      <p class="q-desc"></p>
+      <div class="barras" role="img"></div>
+      <p class="veredito" aria-live="polite"></p>
+      <p class="fig-nota">Mediana de 4 execuções após aquecimento descartado; escala ajustada à query selecionada.</p>
+    </div>
+
+    <div class="figura" id="g-mem">
+      <p class="fig-legenda"><b>FIGURA 3</b> — Pico de memória do processo, carga + queries</p>
+      <div class="barras" role="img" aria-label="Pico de memória: DuckDB 2.180 megabytes; SQLite 3.740; Polars 4.800; Pandas 6.404"></div>
+      <p class="fig-nota">RSS máximo observado. O join de 15,7M × 6,5M de linhas cobra caro do Pandas; o DuckDB faz o mesmo trabalho com um terço da memória.</p>
     </div>
   </div>
-</section>
-</main>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 4/6</span></div>
+</div>
 
-<footer>
-  <div class="sec-head"><span class="sec-num">FL. 07 —</span><h2>Conclusão</h2></div>
-  <p class="prosa">A ferramenta certa não é detalhe: entre o SQLite e o DuckDB há um fator de <b>até 135×</b> nas mesmas queries, na mesma máquina, com o mesmo SQL. O código, os dados e a metodologia estão públicos — confira, rode, conteste.</p>
-  <div class="cta-row" style="margin-top:2rem">
-    <a class="btn btn-git" href="https://github.com/AugustoNeon/-Benchmark-de-Engines-de-Dados-sobre-Datasets-P-blicos-do-Brasil" target="_blank" rel="noopener">Repositório completo no GitHub</a>
-    <a class="btn btn-li" href="https://www.linkedin.com/in/augustoneon/" target="_blank" rel="noopener">Augusto Neon no LinkedIn</a>
+<!-- FOLHA 5 — ocorrências -->
+<div class="pagina" id="ocorrencias">
+  <div class="pagina-corpo">
+    <h2><span class="h-num">4.</span> Ocorrências de campo</h2>
+    <hr class="h-linha">
+    <p class="prosa suave">Dado público de verdade morde. Estas foram as quatro mordidas documentadas durante a construção — cada uma virou código e commit no repositório.</p>
+    <ul class="ocorrencias">
+      <li><span class="oc-tag">OCORRÊNCIA 01 — INFRAESTRUTURA</span><b>As URLs oficiais morreram no meio do caminho</b><p>A Receita migrou a distribuição para um Nextcloud (SERPRO+) e as URLs diretas documentadas país afora pararam de funcionar. Solução: falar WebDAV diretamente com o share público e descobrir a pasta mensal via PROPFIND.</p></li>
+      <li><span class="oc-tag">OCORRÊNCIA 02 — INFRAESTRUTURA</span><b>A PRF mudou para o Google Drive</b><p>Os CSVs de acidentes viraram links de Drive dentro de uma tabela HTML, sem o ano no texto do link. O raspador extrai o par ano→arquivo do contexto da tabela.</p></li>
+      <li><span class="oc-tag">OCORRÊNCIA 03 — PARSING</span><b>Aspas dentro de aspas</b><p>Um endereço real — ESQ COM RUA ""C"" — derrubou o parser: a RFB escapa aspas à moda RFC-4180 e o sniffer do DuckDB não detecta sozinho. Escape explícito resolveu.</p></li>
+      <li><span class="oc-tag">OCORRÊNCIA 04 — TIPOS</span><b>Datas que não são datas</b><p>AAAAMMDD como texto, “0” e “00000000” como nulo, encoding que muda por ano nos arquivos da PRF, e colunas DATE do Parquet virando objetos não-vetorizáveis no Pandas. Cada caso, um tratamento.</p></li>
+    </ul>
   </div>
-  <p class="assina"><span class="nome-a">Augusto Neon</span>Relator do processo · julho de 2026</p>
-  <div class="carimbo-arquivado" aria-hidden="true">ARQUIVADO — REPOSITÓRIO PÚBLICO</div>
-</footer>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 5/6</span></div>
+</div>
+
+<!-- FOLHA 6 — inventário + conclusão -->
+<div class="pagina" id="inventario">
+  <div class="pagina-corpo">
+    <h2><span class="h-num">5.</span> Inventário técnico e conclusão</h2>
+    <hr class="h-linha">
+    <div class="inventario">
+      <div>
+        <h3>Ferramentas empregadas</h3>
+        <ul class="inv-lista">
+          <li><span class="item">Python 3.12</span><span class="uso">pipeline completo</span></li>
+          <li><span class="item">DuckDB</span><span class="uso">engine colunar + ETL</span></li>
+          <li><span class="item">Polars</span><span class="uso">dataframes lazy</span></li>
+          <li><span class="item">Pandas</span><span class="uso">baseline clássico</span></li>
+          <li><span class="item">SQLite</span><span class="uso">baseline relacional</span></li>
+          <li><span class="item">PyArrow / Parquet</span><span class="uso">formato comum</span></li>
+          <li><span class="item">psutil</span><span class="uso">medição de memória</span></li>
+          <li><span class="item">Matplotlib</span><span class="uso">gráficos do repositório</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Competências demonstradas</h3>
+        <ul class="inv-lista">
+          <li><span class="item">Metodologia de benchmark</span><span class="uso">mediana · aquecimento · isolamento</span></li>
+          <li><span class="item">ETL de dados públicos</span><span class="uso">encoding · layout · escala</span></li>
+          <li><span class="item">Raspagem resiliente</span><span class="uso">WebDAV · HTML · Drive</span></li>
+          <li><span class="item">Validação cruzada</span><span class="uso">corretude antes de velocidade</span></li>
+          <li><span class="item">SQL + dataframes</span><span class="uso">mesma query, 4 dialetos</span></li>
+          <li><span class="item">Visualização de dados</span><span class="uso">acessível e honesta</span></li>
+          <li><span class="item">Reprodutibilidade</span><span class="uso">do zero, 4 comandos</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="conclusao">
+      <p class="prosa" style="margin-top:2.4rem">A ferramenta certa não é detalhe: entre o SQLite e o DuckDB há um fator de <b>até 135×</b> nas mesmas queries, na mesma máquina, com o mesmo SQL. O código, os dados e a metodologia estão públicos — confira, execute, conteste.</p>
+      <div class="cta-row" style="margin-top:1.6rem">
+        <a class="btn" href="https://github.com/AugustoNeon/-Benchmark-de-Engines-de-Dados-sobre-Datasets-P-blicos-do-Brasil" target="_blank" rel="noopener">REPOSITÓRIO COMPLETO ↗</a>
+        <a class="btn btn-acento" href="https://www.linkedin.com/in/augustoneon/" target="_blank" rel="noopener">AUGUSTO NEON NO LINKEDIN ↗</a>
+      </div>
+      <div class="assina-final">
+        <div class="traco"></div>
+        <div class="nome">Augusto Neon</div>
+        <div class="data">Relator · julho de 2026 · documento reproduzível</div>
+      </div>
+    </div>
+  </div>
+  <div class="pagina-pe"><span>BENCH-BR/2026</span><span>fl. 6/6</span></div>
+</div>
+
 </div>
 
 <script>
 document.documentElement.classList.add('js');
+document.documentElement.lang = 'pt-BR';
 
 const DADOS = {
   engines: ["pandas","sqlite","duckdb","polars"],
@@ -425,17 +448,17 @@ const DADOS = {
   carga: {pandas:3.88, sqlite:146.1, duckdb:0.9, polars:0.39},
   mem: {pandas:6404, sqlite:3740, duckdb:2180, polars:4800},
   queries: {
-    q1: {rotulo:"Q1 · Aberturas por ano/UF", desc:"Agregação com extração de data sobre 15,7M de linhas.",
+    q1: {rotulo:"Q1 ABERTURAS", desc:"Aberturas de empresas por ano e UF — agregação com extração de data sobre 15,7M de linhas.",
          t:{pandas:2.1639, sqlite:10.4472, duckdb:0.0772, polars:0.4249}},
-    q2: {rotulo:"Q2 · Top 10 CNAEs", desc:"Join com tabela de atividades + group by + top-k (últimos 5 anos).",
+    q2: {rotulo:"Q2 CNAES", desc:"Top 10 atividades econômicas dos últimos 5 anos — join + group by + top-k.",
          t:{pandas:1.7435, sqlite:7.4513, duckdb:0.0674, polars:0.1314}},
-    q3: {rotulo:"Q3 · Taxa de baixadas", desc:"Agregação condicional por município, com filtro de volume mínimo.",
+    q3: {rotulo:"Q3 BAIXADAS", desc:"Municípios com maior taxa de empresas baixadas — agregação condicional com filtro de volume.",
          t:{pandas:4.9029, sqlite:16.4312, duckdb:0.1716, polars:0.7361}},
-    q4: {rotulo:"Q4 · Capital × porte × CNAE", desc:"A pesada: join de 15,7M × 6,5M de linhas com agregação dupla.",
+    q4: {rotulo:"Q4 CAPITAL", desc:"Capital social médio por porte × divisão CNAE — a pesada: join de 15,7M × 6,5M de linhas.",
          t:{pandas:7.5778, sqlite:19.9015, duckdb:0.3877, polars:0.7989}},
-    q5: {rotulo:"Q5 · Causas × rodovias (PRF)", desc:"Group by + ordenação por mortos nos 205 mil acidentes.",
+    q5: {rotulo:"Q5 RODOVIAS", desc:"Causas de acidente por rodovia, ordenado por mortos — 205 mil ocorrências da PRF.",
          t:{pandas:0.0263, sqlite:0.1802, duckdb:0.0122, polars:0.0063}},
-    q6: {rotulo:"Q6 · Fatais por dia/hora (PRF)", desc:"Extração de hora — a dor do Pandas sem tipo nativo de hora-do-dia.",
+    q6: {rotulo:"Q6 FATAIS", desc:"Acidentes fatais por dia da semana × hora — a dor do Pandas sem tipo nativo de hora.",
          t:{pandas:0.0173, sqlite:0.0219, duckdb:0.0045, polars:0.0008}}
   }
 };
@@ -445,7 +468,7 @@ const fmtTempo = s => s >= 10 ? s.toLocaleString('pt-BR',{maximumFractionDigits:
   : (s*1000).toLocaleString('pt-BR',{maximumFractionDigits: s*1000 < 10 ? 1 : 0}) + " ms";
 const fmtMB = v => v.toLocaleString('pt-BR') + " MB";
 
-function montaBarras(el, valores, fmt, urgenteMax){
+function montaBarras(el, valores, fmt, canetaMax){
   el.innerHTML = "";
   const max = Math.max(...DADOS.engines.map(e => valores[e]));
   const min = Math.min(...DADOS.engines.map(e => valores[e]));
@@ -453,13 +476,13 @@ function montaBarras(el, valores, fmt, urgenteMax){
     const v = valores[e];
     const linha = document.createElement('div');
     linha.className = 'linha-barra';
-    const urgente = urgenteMax && v === max && max / min > 20;
-    // largura máxima 82% para o rótulo de valor caber à direita
+    const caneta = canetaMax && v === max && max / min > 20;
+    // largura máxima 80% para o rótulo caber à direita
     linha.innerHTML =
       `<span class="nome">${DADOS.nomes[e]}</span>` +
-      `<div class="trilho" style="--w:${(v / max * 82).toFixed(2)}%">` +
+      `<div class="trilho" style="--w:${(v / max * 80).toFixed(2)}%">` +
       `<div class="barra ${e}"></div>` +
-      `<span class="valor${urgente ? ' urgente':''}">${fmt(v)}</span></div>`;
+      `<span class="valor${caneta ? ' caneta':''}">${fmt(v)}</span></div>`;
     el.appendChild(linha);
   }
 }
@@ -467,13 +490,9 @@ function animaBarras(el){
   el.querySelectorAll('.trilho').forEach(t => t.classList.add('on'));
 }
 
-const gCarga = document.querySelector('#g-carga .barras');
-montaBarras(gCarga, DADOS.carga, fmtTempo, true);
+montaBarras(document.querySelector('#g-carga .barras'), DADOS.carga, fmtTempo, true);
+montaBarras(document.querySelector('#g-mem .barras'), DADOS.mem, fmtMB, false);
 
-const gMem = document.querySelector('#g-mem .barras');
-montaBarras(gMem, DADOS.mem, fmtMB, false);
-
-// --- gráfico interativo de queries ---
 const gq = document.querySelector('#g-queries');
 const tabs = gq.querySelector('.q-tabs');
 const desc = gq.querySelector('.q-desc');
@@ -484,16 +503,15 @@ function selecionaQuery(id){
   const q = DADOS.queries[id];
   tabs.querySelectorAll('.q-tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.q === id ? 'true':'false'));
   desc.textContent = q.desc;
-  const tempos = q.t;
-  montaBarras(barrasQ, tempos, fmtTempo, true);
+  montaBarras(barrasQ, q.t, fmtTempo, true);
   barrasQ.setAttribute('aria-label',
-    'Tempos da ' + q.rotulo + ': ' + DADOS.engines.map(e => DADOS.nomes[e] + ' ' + fmtTempo(tempos[e])).join('; '));
+    'Tempos da query ' + q.rotulo + ': ' + DADOS.engines.map(e => DADOS.nomes[e] + ' ' + fmtTempo(q.t[e])).join('; '));
   requestAnimationFrame(()=>requestAnimationFrame(()=>animaBarras(barrasQ)));
-  const melhor = DADOS.engines.reduce((a,b)=> tempos[a] <= tempos[b] ? a : b);
-  const pior = DADOS.engines.reduce((a,b)=> tempos[a] >= tempos[b] ? a : b);
-  const fator = (tempos[pior]/tempos[melhor]);
-  veredito.textContent = "VEREDITO: " + DADOS.nomes[melhor] + " foi " +
-    fator.toLocaleString('pt-BR',{maximumFractionDigits:0}) + "× mais rápido que " + DADOS.nomes[pior] + " nesta query.";
+  const melhor = DADOS.engines.reduce((a,b)=> q.t[a] <= q.t[b] ? a : b);
+  const pior = DADOS.engines.reduce((a,b)=> q.t[a] >= q.t[b] ? a : b);
+  veredito.textContent = DADOS.nomes[melhor] + " foi " +
+    (q.t[pior]/q.t[melhor]).toLocaleString('pt-BR',{maximumFractionDigits:0}) +
+    "× mais rápido que " + DADOS.nomes[pior] + " nesta query.";
 }
 for(const [id,q] of Object.entries(DADOS.queries)){
   const b = document.createElement('button');
@@ -505,32 +523,20 @@ for(const [id,q] of Object.entries(DADOS.queries)){
 }
 selecionaQuery('q4');
 
-// --- reveals + animação das barras ao entrar na viewport ---
 // document.hidden: carregou em aba de fundo — transições/IO ficam pausados
 // pelo navegador, então entrega tudo no estado final direto.
 const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches || document.hidden;
 if(reduz){
-  document.querySelectorAll('.rev').forEach(s=>s.classList.add('on'));
   document.querySelectorAll('.barras').forEach(animaBarras);
-  document.querySelector('.carimbo-selo').classList.add('on');
+  document.querySelector('.carimbo').classList.add('on');
 }else{
-  const io = new IntersectionObserver(entries => {
-    for(const en of entries){
-      if(!en.isIntersecting) continue;
-      en.target.classList.add('on');
-      en.target.querySelectorAll('.barras').forEach(animaBarras);
-      io.unobserve(en.target);
-    }
-  }, {threshold:.15});
-  document.querySelectorAll('.rev').forEach(s=>io.observe(s));
-  // barras dentro de seções já reveladas (gráficos ficam na seção "provas")
   const ioB = new IntersectionObserver(entries => {
     for(const en of entries){
       if(!en.isIntersecting) continue;
       animaBarras(en.target); ioB.unobserve(en.target);
     }
-  }, {threshold:.35});
+  }, {threshold:.3});
   document.querySelectorAll('.barras').forEach(b=>ioB.observe(b));
-  setTimeout(()=>document.querySelector('.carimbo-selo').classList.add('on'), 450);
+  setTimeout(()=>document.querySelector('.carimbo').classList.add('on'), 400);
 }
 </script>
